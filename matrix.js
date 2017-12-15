@@ -10,8 +10,6 @@ window.onkeypress = function() {
   paused = !paused
 }
 
-
-
 function mergeSort(arr)
 {
     if (arr.length < 2)
@@ -77,9 +75,9 @@ function Letter(letter, x, y, color, letters) {
     if (clock % 5 === 0) {
       this.letter = randUTF()
       if (letters.length !== undefined) {
-        this.color = increaseBrightness(this.color, 0.9)
+        this.color = increaseBrightness(this.color, 1)
       } else {
-        this.color = increaseBrightness(this.color, 1 - (letters * 0.12))
+        this.color = increaseBrightness(this.color, letters * 0.1)
       }
     }
 
@@ -89,23 +87,12 @@ function Letter(letter, x, y, color, letters) {
   }
 }
 
-function increaseBrightness(hex, percent){
-    // strip the leading # if it's there
-    hex = hex.replace(/^\s*#|\s*$/g, '');
-
-    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-    if(hex.length == 3){
-        hex = hex.replace(/(.)/g, '$1$1');
-    }
-
-    var r = parseInt(hex.substr(0, 2), 16),
-        g = parseInt(hex.substr(2, 2), 16),
-        b = parseInt(hex.substr(4, 2), 16);
-
-    return '#' +
-       ((0|(1<<8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
-       ((0|(1<<8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
-       ((0|(1<<8) + b + (256 - b) * percent / 100).toString(16)).substr(1);
+function increaseBrightness(hsl, percent){
+    var parsing = hsl.replace('hsl(','').replace(')','').replace(')','').replace(')','').replace(' ','').split(',').map(function(value) { 
+      return parseInt(value);
+    });
+    var result = `hsl(${parsing[0]},${parsing[1]}%,${parsing[2]+percent}%)`   
+    return result;
 }
 
 function rand(min, max) {
@@ -125,7 +112,7 @@ function init() {
   }
   for (j = 0; j < w / 20; j++) {
     x = j * 20
-    letters.push(new Letter('A', x ,0,'#2f7c2f', letters))
+    letters.push(new Letter('A', x ,0,'hsl(120, 100%, 50%)', letters))
   }
   animate(draw);
 }
@@ -149,19 +136,11 @@ function draw() {
       lettersToRemove.splice(j,1)
   }
 
-  // iterateBy = rand(1, 6)
-  // for (j = rand(0, 3) ; j < w / 20; j = j + iterateBy) {
-  //   x = j * 20
-  //   if (xToLetters[x] < xToLetters[minKey]) {
-  //     minKey = x;
-  //   }
-  // }
-
   xSortedByLetters = Object.keys(xToLetters)
   xSortedByLetters = mergeSort(xSortedByLetters)
 
   if (!paused) {
-    letters.push(new Letter('A',xSortedByLetters[0] ,0,'#2f7c2f', letters))
+    letters.push(new Letter('A',xSortedByLetters[0] ,0,'hsl(120, 100%, 50%)', letters))
   }
 
   for (var letter in letters) {
